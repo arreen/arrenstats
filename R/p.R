@@ -1,0 +1,78 @@
+#' p
+#'
+#' @description
+#' Fast plotting for dataframe
+#'
+#' @param data dataframe column or multiple.
+#'
+#' @returns A plot.
+#' @import ggplot2
+#' @export
+#'
+#' @examples
+#' p(iris[, 2])
+#' p(iris[, 1:3])
+#'
+#'
+
+p <- function(data) {
+  if (!is.vector(data)) {
+    types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
+    numerical_index <- which(types == "numeric" | types == "integer")
+    categorical_index <- which(types == "character" | types == "factor")
+
+    invisible(
+    lapply(numerical_index, function(x) {
+      print(
+        ggplot(data, aes(x = data[, x])) +
+          geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+          theme_bw() +
+          labs(x = names(data)[x], y = "Count",
+               title = paste("Histogram of", names(data)[x]))
+      )
+    })
+    )
+
+    invisible(
+    lapply(categorical_index, function(x) {
+      print(
+        ggplot(data, aes(x = data[, x])) +
+          geom_bar(fill = "lightblue", color = "black") +
+          theme_bw() +
+          labs(x = names(data)[x], y = "Count",
+               title = paste("Bar chart of", names(data)[x]))
+      )
+    })
+    )
+
+  } else {
+
+    if (is.null(names(data))) {
+      name <- "variable"
+    } else {
+      name <- names(data)
+    }
+    if (class(data) %in% c("numerical", "integer")) {
+
+
+      ggplot(data %>% as.data.frame(), aes(x = data)) +
+        geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+        theme_bw() +
+        labs(x = name, y = "Count",
+             title = paste("Histogram of", name))
+    } else {
+
+      ggplot(data %>% as.data.frame(), aes(x = data)) +
+        geom_bar(fill = "lightblue", color = "black") +
+        theme_bw() +
+        labs(x = name, y = "Count",
+             title = paste("Bar chart of", name))
+    }
+
+
+  }
+
+}
+
+
+
