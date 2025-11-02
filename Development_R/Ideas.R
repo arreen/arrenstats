@@ -9,7 +9,11 @@
 
 # Graph the training error in each cluster.
 
-Kernel, moodes. Use min(sd, IQR/1.34) and epanchikov
+# -----------------------------------------
+
+PLOT ALL VARIABLES VS Y
+
+Kernel, modes. Use min(sd, IQR/1.34) and epanchikov
 GMM
 DBSCAN
 
@@ -20,24 +24,19 @@ KDE?
 
 # -----------------------------------------
 
-Standardization, robust and non robust
-depending on the distribution, do simulation studies to understand what to look for,
-what makes an efficient sampler
-
-min(sd, IQR/1.34)
-
-Then do leverage, good outlier detection
+Leverage, good outlier detection
 + PCA!
-
-
-
-
-
 
 # -------------------------------------------
 
 Investigate bootstrap
 KDE?
+# ------------------------------------------
+XGBoost pipeline
+
+# -----------------------------------------
+Bayesian networks
+Start of with binning continous variables
 
 # -----------------------------------------
 Non-parametric methods
@@ -45,3 +44,6 @@ Non-parametric methods
 # -----------------------------------------
 Quantile esitmation
 smoothing before
+
+# -----------------------------------------
+SHAP is crazy good!

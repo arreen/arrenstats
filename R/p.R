@@ -16,7 +16,7 @@
 #'
 
 p <- function(data) {
-  if (!is.vector(data)) {
+  if (is.data.frame(data) | is.matrix(data)) {
     types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
     numerical_index <- which(types == "numeric" | types == "integer")
     categorical_index <- which(types == "character" | types == "factor")

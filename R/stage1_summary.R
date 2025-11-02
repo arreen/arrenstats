@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 #library(dbscan)
 library(reshape2)
+library(stringr)
 
 # -----------
 
@@ -31,7 +32,7 @@ library(reshape2)
 #' stage1_summary(data, decimals = 1, raw_bool = FALSE, location_plots = FALSE, heatmaps = TRUE, surpress_plotting = FALSE, plot_limit = 7, extreme_outliers = FALSE)
 #'
 #' @returns Outlier counts, according to if within 3 IQR of 1st and 3rd quartile. Mean if n>60 otherwise raw count. The heatmap for categorical variables highlights values with low p-values.
-#' @import dplyr ggplot2 reshape2
+#' @import dplyr ggplot2 reshape2 stringr
 #' @export
 #'
 #' @examples
@@ -45,14 +46,16 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
                            heatmaps = TRUE, surpress_plotting = FALSE, plot_limit = 7,
                            extreme_outliers = FALSE) {
 
-  types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
-  numerical_index <- which(types == "numeric" | types == "integer")
-  categorical_index <- which(types == "character" | types == "factor")
+  types <- sapply(1:ncol(data), function(x) class(data[, x]) %>% str_c(collapse = "")) %>% unlist()
+  stopifnot(c("numeric", "integer", "character", "factor") %in% types %>% any())
+  numerical_index <- which(str_detect(types, "(integer)|(numeric)"))
+  categorical_index <- which(str_detect(types, "(factor)|(character)"))
 
-  var_names <- colnames(data[, numerical_index])
+
 
   if (length(numerical_index) + length(categorical_index) < (plot_limit + 1) & !surpress_plotting) {
     #Plot all histograms instead! if k < 8
+
     lapply(numerical_index, function(x) {
       print(
       ggplot(data, aes(x = data[, x])) +
@@ -180,12 +183,20 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 
 
-    print(plot_heatmatrix(categorical_matrix, p_values_matrix, "Cramer's V", "Categorical"))
+    if (length(categorical_index) > 1) {
+      print(plot_heatmatrix(categorical_matrix, p_values_matrix, "Cramer's V", "Categorical"))
+    }
+
     data[, numerical_index]
     cor_matrix <- cor(data[, numerical_index], method = "spearman")
-    print(plot_heatmatrix(cor_matrix, cor_matrix - cor_matrix, expression("Spearman " * rho), "Numerical"))
+
+    if (length(numerical_index) > 1) {
+      print(plot_heatmatrix(cor_matrix, cor_matrix - cor_matrix, expression("Spearman " * rho), "Numerical"))
+    }
 
   }
+
+  if (length(numerical_index) > 0) {
 
     skew <- function(x) {
       n <- length(x)
@@ -277,6 +288,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
     raw <- rbind(raw, gaussian, outliers) #, multimodality)
 
+    var_names <- colnames(data[, numerical_index])
     colnames(raw) <- var_names
 
 
@@ -312,11 +324,11 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 
     return(processed)
+  }
+
 
 
 }
-
-
 
 
 # na value check

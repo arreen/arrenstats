@@ -37,7 +37,12 @@ std_df <- function(data) {
 
     # to skewed/kurtose or too many outliers (5%) outside 3 IQR
     # or too many extreme outliers (1%) outside 5 IQR
-    need_robust <- (skew_fat_tails[1, i] != 1) | (skew_fat_tails[2, i] > 0.05) | (skew_fat_tails[3, i] > 0.01)
+    if (n > 100) {
+      need_robust <- (skew_fat_tails[1, i] != 1) | (skew_fat_tails[2, i] > 0.05) | (skew_fat_tails[3, i] > 0.01)
+    } else {
+      # variance in low sample, harsher limit, still continous bounding
+      need_robust <- (skew_fat_tails[1, i] != 1) | (skew_fat_tails[2, i] * n > 5) | (skew_fat_tails[3, i] * n > 1)
+    }
 
     if (need_robust) {
       data[, numerical_index[i]] <- data[, numerical_index[i]] %>% std_robust()
