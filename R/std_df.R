@@ -4,6 +4,7 @@
 #' Standardizes all numerical variables according to if theyre skewed or have fat tails.
 #'
 #' @param data a data.frame
+#' @param revertible if true saves mean and standard deviation with variable names
 #'
 #' @returns Standardized data.frame
 #' @export
@@ -12,7 +13,7 @@
 #' std_df(iris)
 #'
 #'
-std_df <- function(data) {
+std_df <- function(data, revertible = FALSE) {
   # x is a vecto
   types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
   numerical_index <- which(types == "numeric" | types == "integer")
@@ -32,6 +33,9 @@ std_df <- function(data) {
 
   skew_fat_tails <- rbind(meassures[rownames(meassures) %in% c("gaussian", "outliers"), ], extreme_meassures[rownames(meassures) %in% c("outliers")])
 
+  if (revertible) {
+    store_df <- data.frame(var_name = character(), mu = numeric(), spread = numeric())
+  }
 
   for (i in 1:length(numerical_index)) {
 
@@ -45,11 +49,38 @@ std_df <- function(data) {
     }
 
     if (need_robust) {
-      data[, numerical_index[i]] <- data[, numerical_index[i]] %>% std_robust()
+      if (!revertible) {
+        data[, numerical_index[i]] <- data[, numerical_index[i]] %>% std_robust()
+      } else {
+        store <- data[, numerical_index[i]] %>% std_robust(revertible = revertible)
+        data[, numerical_index[i]] <- store$x
+        store_df <- rbind(store_df,
+                          data.frame(var_name = colnames(data)[numerical_index[i]],
+                                     mu = store$mu,
+                                     spread = store$spread
+                                     ))
+
+      }
     } else {
-      data[, numerical_index[i]] <- data[, numerical_index[i]] %>% std_z()
+      if (!revertible) {
+        data[, numerical_index[i]] <- data[, numerical_index[i]] %>% std_z()
+      } else {
+        store <- data[, numerical_index[i]] %>% std_z(revertible = revertible)
+        data[, numerical_index[i]] <- store$x
+        store_df <- rbind(store_df,
+                          data.frame(var_name = colnames(data)[numerical_index[i]],
+                                     mu = store$mu,
+                                     spread = store$spread
+                          ))
+
+      }
+
     }
 
+  }
+
+  if (revertible) {
+    return(list(std_df = data, reverse_df = store_df))
   }
 
   return(data)

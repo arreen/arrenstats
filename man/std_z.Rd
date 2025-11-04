@@ -4,10 +4,12 @@
 \alias{std_z}
 \title{std_z}
 \usage{
-std_z(x)
+std_z(x, revertible = FALSE)
 }
 \arguments{
 \item{x}{numerical vector}
+
+\item{revertbible}{If spread and location should be saved}
 }
 \value{
 Standardized values

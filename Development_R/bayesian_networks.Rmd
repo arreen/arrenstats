@@ -20,6 +20,10 @@ The bnlearn package implements the following learning algorithms.
 
 ```{r}
 library(bnlearn)
+library(bnviewer)
+
+library(Rgraphviz)
+library(gRain)
 ```
 
 
@@ -38,6 +42,7 @@ Unlike many machine learning models (including Artificial Neural Network), which
 
 ```{r}
 asia<- bnlearn::asia
+
 ```
 
 -  D (dyspnoea), a two-level factor with levels yes and no.
@@ -70,16 +75,8 @@ plot(res)
 ```{r}
 fittedbn <- bn.fit(res, data = bn_df)
 
-graphviz.chart(
-  fittedbn,
-  type = "barprob" ,
-  layout = "fdp",
-  scale = c(0.75, 0.9),
-  grid = TRUE,
-  bar.col = "red",
-  strip.bg = "lightskyblue"
-)
 
+viewer(fittedbn)
 ```
 
 “Shortness-of-breath (dyspnoea) may be due to tuberculosis, lung cancer or bronchitis, or none of them, or more than one of them. A recent visit to Asia increases the chances of tuberculosis, while smoking is known to be a risk factor for both lung cancer and bronchitis. The results of a single chest X-ray do not discriminate between lung cancer and tuberculosis, as neither does the presence or absence of dyspnoea.”

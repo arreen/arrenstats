@@ -5,6 +5,7 @@
 #' Comparable to z_score under normality
 #'
 #' @param x numerical vector
+#' @param revertbible If spread and location should be saved
 #'
 #' @returns Standardized values
 #' @export
@@ -13,12 +14,22 @@
 #' std_robust(rnorm(10, 10, 5))
 #'
 #'
-std_robust <- function(x) {
+std_robust <- function(x, revertible = FALSE) {
   # x is a vector
   Q <- quantile(x, probs = c(0.25, 0.5, 0.75))
 
+
+  mu <- Q[2]
   # 1.349 is that under normality it is comparable to a Z-score.
-  1.349 * (x - Q[2]) / (Q[3] - Q[1])
+  spread <- (Q[3] - Q[1]) / 1.349
+
+  if (revertible) {
+    return(list(x = (x - mu) / spread, mu = mu, spread = spread))
+  }
+
+
+  (x - mu) / spread
+
 
 }
 

@@ -4,10 +4,12 @@
 \alias{std_robust}
 \title{std_robust}
 \usage{
-std_robust(x)
+std_robust(x, revertible = FALSE)
 }
 \arguments{
 \item{x}{numerical vector}
+
+\item{revertbible}{If spread and location should be saved}
 }
 \value{
 Standardized values

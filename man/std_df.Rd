@@ -4,10 +4,12 @@
 \alias{std_df}
 \title{std_df}
 \usage{
-std_df(data)
+std_df(data, revertible = FALSE)
 }
 \arguments{
 \item{data}{a data.frame}
+
+\item{revertible}{if true saves mean and standard deviation with varible names}
 }
 \value{
 Standardized data.frame

@@ -35,6 +35,11 @@ KDE?
 XGBoost pipeline
 
 # -----------------------------------------
+
+GAM for interpretablity
+
+# ----------------------------------------
+
 Bayesian networks
 Start of with binning continous variables
 
