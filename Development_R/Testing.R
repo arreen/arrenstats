@@ -36,4 +36,7 @@ y_color_scatter(data$px_width, data$px_height, data$price_range, varnames = c("W
 y_color_scatter(data$talk_time, data$clock_speed, data$price_range, varnames = c("W", "H", "price_range"))
 
 
-SVD,
+SVM
+
+
+
