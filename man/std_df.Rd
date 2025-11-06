@@ -4,18 +4,20 @@
 \alias{std_df}
 \title{std_df}
 \usage{
-std_df(data, revertible = FALSE)
+std_df(data, original_scale = NA, revertible = FALSE)
 }
 \arguments{
-\item{data}{a data.frame}
+\item{data}{a data.frame, can also revert standardization for vectors}
 
-\item{revertible}{if true saves mean and standard deviation with varible names}
+\item{original_scale}{put the reverse_df you got from revertible = TRUE in here}
+
+\item{revertible}{if true saves mean and standard deviation with variable names}
 }
 \value{
 Standardized data.frame
 }
 \description{
-Standardizes all numerical variables according to if theyre skewed or have fat tails.
+Standardizes all numerical variables according to if they're skewed or have fat tails.
 }
 \examples{
 std_df(iris)

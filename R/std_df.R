@@ -1,19 +1,50 @@
 #' std_df
 #'
 #' @description
-#' Standardizes all numerical variables according to if theyre skewed or have fat tails.
+#' Standardizes all numerical variables according to if they're skewed or have fat tails.
 #'
-#' @param data a data.frame
+#' @param data a data.frame, can also revert standardization for vectors
 #' @param revertible if true saves mean and standard deviation with variable names
+#' @param original_scale put the reverse_df you got from revertible = TRUE in here
 #'
 #' @returns Standardized data.frame
+#' @import dplyr
 #' @export
 #'
 #' @examples
 #' std_df(iris)
 #'
 #'
-std_df <- function(data, revertible = FALSE) {
+std_df <- function(data, original_scale = NA,revertible = FALSE) {
+  if (is.data.frame(original_scale)) {
+    if (is.data.frame(data)) {
+      for (i in 1:nrow(original_scale)) {
+        var <- original_scale$var_name[i]
+        data[var] <- data[var] * original_scale$spread[i] + original_scale$mu[i]
+      }
+    return(data)
+
+
+    } else {
+
+      if (is.vector(data)) {
+        if (!names(data) %>% is.null()) {
+          for (i in 1:nrow(original_scale)) {
+            var <- original_scale$var_name[i]
+            data[var] <- data[var] * original_scale$spread[i] + original_scale$mu[i]
+          }
+
+        } else {
+          for (i in 1:nrow(original_scale)) {
+            data[i] <- data[i] * original_scale$spread[i] + original_scale$mu[i]
+          }
+        }
+
+        return(data)
+      }
+    }
+
+  }
   # x is a vecto
   types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
   numerical_index <- which(types == "numeric" | types == "integer")

@@ -6,7 +6,7 @@
 #' @param data dataframe column or multiple.
 #'
 #' @returns A plot.
-#' @import ggplot2
+#' @import ggplot2 dplyr
 #' @export
 #'
 #' @examples

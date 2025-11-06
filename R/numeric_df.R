@@ -7,6 +7,7 @@
 #' @param char keeps categorical instead (factor and character), defaults to FALSE.
 #'
 #' @returns filtered data.frame
+#' @import dplyr
 #' @export
 #'
 #' @examples

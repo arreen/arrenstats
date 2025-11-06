@@ -52,3 +52,8 @@ smoothing before
 
 # -----------------------------------------
 SHAP is crazy good!
+
+# ---------------------------------------
+Revert standardization for df
+revert standardization for vector, check for names, if not do by order
+

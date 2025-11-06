@@ -9,6 +9,7 @@
 #' @param varnames variable names
 #'
 #' @returns Scatter plot colored by levels of Y.
+#' @import ggplot2
 #' @export
 #'
 #'
