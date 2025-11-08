@@ -25,5 +25,5 @@ Importance scores for the variables, heatmap if interaction is set to TRUE, reco
 \description{
 Determines the contribution different features have for a model's performance given a loss function.
 This is done by randomizing one feature at a time, the more the model's predictions worsen the more important the variable was.
-It is interesting to look in the test-set as well, importance scores there reflect generalizable patterns. Importance score in the training set.
+It is interesting to look in the test-set as well, importance scores there reflect generalizable patterns. Importance score in the training set can reflect overreliance on a variables noise rather than causal patterns.
 }

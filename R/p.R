@@ -54,7 +54,7 @@ p <- function(data) {
     } else {
       name <- names(data)
     }
-    if (class(data) %in% c("numerical", "integer")) {
+    if (class(data) %in% c("numeric", "integer")) {
 
 
       ggplot(data %>% as.data.frame(), aes(x = data)) +

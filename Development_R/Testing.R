@@ -1,72 +1,66 @@
-data <- read.csv("Development_R/train.csv")
-data$blue <- as.factor(data$blue)
-data$dual_sim <- as.factor(data$dual_sim)
-data$four_g <- as.factor(data$four_g)
-data$three_g <- as.factor(data$three_g)
-data$touch_screen <- as.factor(data$touch_screen)
-data$wifi <- as.factor(data$wifi)
+data <- read.csv("Development_R/Final_data.csv")
+data$meal_name <- NULL
 
-stage1_summary(data)
-data$price_range <- as.factor(data$price_range)
+library(dplyr)
+library(stringr)
+library(reshape2)
+library(ggplot2)
 
-#pc fc (front camera is always worse)
-PCA makes me believe the average of these can be used instead if
-we need independent variables
-
-#width height
-Width limits the height
-These matter for price_range, maybe average or make uncorrelated
-
-#three g and four g
-ALL 4g phones have 3g!!
-
-price range ram!!!!! HUGE
-
-pca_df <- numeric_df(data)
-
-pca_df <- std_df(pca_df)
-res <- FactoMineR::PCA(pca_df)
+library(bnlearn)
 
 
-lm()
+num_data <- data %>% numeric_df()
+cat_data <- data %>% numeric_df(char = TRUE)
 
-debug(y_color_scatter)
-y_color_scatter(data$battery_power, data$ram, data$price_range, varnames = c("BP", "ram", "price_range"))
-y_color_scatter(data$px_width, data$px_height, data$price_range, varnames = c("W", "H", "price_range"))
-y_color_scatter(data$talk_time, data$clock_speed, data$price_range, varnames = c("W", "H", "price_range"))
-
-
-SVM
+stage1_summary(data, heatmaps = F)
+p(data$Physical.exercise) should be made into a categorical varaible
+p(data$BMI)
 
 
-install.packages("e1071")
-library(e1071)
-
-data <- cbind(data %>% numeric_df(), data$price_range)
-data <- data %>% std_df()
-colnames(data)[15] <- "price_range"
-model <- svm(price_range ~ ., data = data, kernel = "polynomial",
-             cost = 1, gamma = 1, coef0 = 1, scale = FALSE, degree = 1)
-
-data$predictions <- predict(model, data)
-mean(data$predictions == data$price_range)
-
-sv <- model$SV
-
-w <- t(model$coefs) %*% model$SV
-# Looking at coefficients is problematic in higher dimensions
-
-We want this to be linear, batch out the test for svm for numeric, sorted by vector norms
-Same for categorical
-Output prediction rate
-
-Combine with bayesian network for categorical
 
 
-interpret_svm <- function(data, y_name, cost = 1) {
-  y_index <- colnames(data) == y_name
-  if (data[, -y_index]) {
+pca_df <- num_data[-which(colnames(num_data) == "Weight..kg.")] %>% std_df()
+#outliers
+pca_df$Physical.exercise <- NULL
+#too correlated
+pca_df$cal_from_macros <- NULL
+corr <- corr_Y(cbind(pca_df, data.frame("weight" = data$Weight..kg.)), "weight")
+pca_df <- pca_df[, !(colnames(pca_df) %in% names(corr)[corr %>% abs() > 0.7])]
 
-  }
-  num_df(data, char = TRUE)
+data.pca <- princomp(pca_df)
+summary(data.pca)
+
+reg_df <-  data.pca$scores %>% as.data.frame()
+reg_df <- reg_df %>% std_df()
+reg_df <- cbind(reg_df, data.frame("weight" = data$Weight..kg.))
+
+model <- lm(weight ~ ., reg_df)
+summary(model)
+
+colnames(num_data)[colnames(num_data) %>% str_detect("Weight")] <- "weight"
+
+lm(weight ~ ., num_data[colnames(pca_df)])
+
+data.pca$loadings[, 5][order(data.pca$loadings[, 5] %>% abs(), decreasing = T)]
+
+data.pca$loadings[, 6][order(data.pca$loadings[, 6] %>% abs(), decreasing = T)]
+
+data.pca$loadings[, 23][order(data.pca$loadings[, 23] %>% abs(), decreasing = T)]
+
+# Categorical
+# ------------------------------
+for (i in 1:ncol(cat_data)) {
+  cat_data[, i] <- cat_data[, i] %>% as.factor()
 }
+res <- hc(cat_data)
+plot(res)
+res
+
+viewer(res,
+       bayesianNetwork.width = "100%",
+       bayesianNetwork.height = "800px",
+       bayesianNetwork.layout = "layout_with_fr")
+
+bnlearn::parents(res, "Y_binned")
+bnlearn::children(res, "Y_binned")
+mb(res, "Y_binned")

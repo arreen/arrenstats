@@ -1,9 +1,3 @@
-library(dplyr)
-library(ggplot2)
-#library(dbscan)
-library(reshape2)
-library(stringr)
-
 # -----------
 
 # How does my program handle NA values???
@@ -19,9 +13,9 @@ library(stringr)
 #'
 #'
 #' @param data should be a dataframe, accepted types are character and factor for categorical. Integer and numerical for numerical variables.
-#' @param decimals determines decimals for mu and spread, only relevant if you have variables on small scales.
-#' @param raw_bool TRUE/FALSE, needed when you want non rounded spreads/kurtosis... for further processing
-#' @param location_plots If true plot mu, spread... for all variables as a histogram
+#' @param decimals determines decimals for mu and var, only relevant if you have variables on small scales.
+#' @param raw_bool TRUE/FALSE, needed when you want non rounded vars/kurtosis... for further processing
+#' @param location_plots If true plot mu, var... for all variables as a histogram
 #' @param heatmaps If true returns spearman correlation (https://pubmed.ncbi.nlm.nih.gov/27213982/) for numerical variables.
 #' CramerV biascorrected (https://en.wikipedia.org/wiki/Cram\%C3\%A9r\%27s_V) and using simulated p-values for robustness, is this table actually surprising?
 #' @param surpress_plotting controls histograms and barcharts
@@ -38,7 +32,7 @@ library(stringr)
 #' @examples
 #' # stage1_summary(data)
 #'
-#' # The following is for using mu, spread ... in further analysis
+#' # The following is for using mu, var ... in further analysis
 #' # stage1_summary(data, raw_bool = TRUE, surpress_plotting = TRUE, heatmaps = FALSE)$raw
 #'
 #'
@@ -239,7 +233,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 
     mu <- sapply(numerical_index, function(x) data[, x] %>% mean())
-    spread <- sapply(numerical_index, function(x) data[, x] %>% var())
+    var <- sapply(numerical_index, function(x) data[, x] %>% var())
 
     #Skewness bias only pulls the skewness closer to 0, never across it
 
@@ -255,7 +249,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 
 
-    raw <- rbind(mu, spread, skewness, kurtosis)
+    raw <- rbind(mu, var, skewness, kurtosis)
 
     gaussian <- sapply(1:ncol(raw), function(x){
       S <- raw[3, x]
@@ -299,7 +293,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
       # Why do we even want these plots???
       hist(mu)
-      hist(spread)
+      hist(var)
 
       print('ref_kurtosis <- c(Uni = -1.2, Normal = 0, Exp = 6, Laplace = 3, Cauchy = Inf, (Gamma a=1) = 6)' )
       hist(skewness)

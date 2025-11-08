@@ -10,11 +10,11 @@ stage1_summary(data, decimals = 1, raw_bool = FALSE, location_plots = FALSE, hea
 \arguments{
 \item{data}{should be a dataframe, accepted types are character and factor for categorical. Integer and numerical for numerical variables.}
 
-\item{decimals}{determines decimals for mu and spread, only relevant if you have variables on small scales.}
+\item{decimals}{determines decimals for mu and var, only relevant if you have variables on small scales.}
 
-\item{raw_bool}{TRUE/FALSE, needed when you want non rounded spreads/kurtosis... for further processing}
+\item{raw_bool}{TRUE/FALSE, needed when you want non rounded vars/kurtosis... for further processing}
 
-\item{location_plots}{If true plot mu, spread... for all variables as a histogram}
+\item{location_plots}{If true plot mu, var... for all variables as a histogram}
 
 \item{heatmaps}{If true returns spearman correlation (https://pubmed.ncbi.nlm.nih.gov/27213982/) for numerical variables.
 CramerV biascorrected (https://en.wikipedia.org/wiki/Cram\%C3\%A9r\%27s_V) and using simulated p-values for robustness, is this table actually surprising?}
@@ -37,7 +37,7 @@ Do we have outliers?
 \examples{
 # stage1_summary(data)
 
-# The following is for using mu, spread ... in further analysis
+# The following is for using mu, var ... in further analysis
 # stage1_summary(data, raw_bool = TRUE, surpress_plotting = TRUE, heatmaps = FALSE)$raw
 
 
