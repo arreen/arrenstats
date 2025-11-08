@@ -4,7 +4,7 @@
 \alias{p}
 \title{p}
 \usage{
-p(data)
+p(iris)
 }
 \arguments{
 \item{data}{dataframe column or multiple.}

@@ -17,7 +17,7 @@ std_df(data, original_scale = NA, revertible = FALSE)
 Standardized data.frame
 }
 \description{
-Standardizes all numerical variables according to if they're skewed or have fat tails.
+Standardizes all numerical variables according to if they're skewed or have fat tails. If originial scale is given it will revert the given standardization for the data argument.
 }
 \examples{
 std_df(iris)

@@ -5,7 +5,7 @@
 #'
 #' @param x1 numerical variable
 #' @param x2 numerical variable
-#' @param y numerical variable
+#' @param y categorical variable, will be converted into low mid high for numerical vars
 #' @param varnames variable names
 #'
 #' @returns Scatter plot colored by levels of Y.

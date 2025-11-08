@@ -39,4 +39,34 @@ y_color_scatter(data$talk_time, data$clock_speed, data$price_range, varnames = c
 SVM
 
 
+install.packages("e1071")
+library(e1071)
 
+data <- cbind(data %>% numeric_df(), data$price_range)
+data <- data %>% std_df()
+colnames(data)[15] <- "price_range"
+model <- svm(price_range ~ ., data = data, kernel = "polynomial",
+             cost = 1, gamma = 1, coef0 = 1, scale = FALSE, degree = 1)
+
+data$predictions <- predict(model, data)
+mean(data$predictions == data$price_range)
+
+sv <- model$SV
+
+w <- t(model$coefs) %*% model$SV
+# Looking at coefficients is problematic in higher dimensions
+
+We want this to be linear, batch out the test for svm for numeric, sorted by vector norms
+Same for categorical
+Output prediction rate
+
+Combine with bayesian network for categorical
+
+
+interpret_svm <- function(data, y_name, cost = 1) {
+  y_index <- colnames(data) == y_name
+  if (data[, -y_index]) {
+
+  }
+  num_df(data, char = TRUE)
+}

@@ -11,7 +11,7 @@ y_color_scatter(x1, x2, y, varnames = c("Var 1", "Var 2", "Y"))
 
 \item{x2}{numerical variable}
 
-\item{y}{numerical variable}
+\item{y}{categorical variable, will be converted into low mid high for numerical vars}
 
 \item{varnames}{variable names}
 }

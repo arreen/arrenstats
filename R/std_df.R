@@ -1,7 +1,7 @@
 #' std_df
 #'
 #' @description
-#' Standardizes all numerical variables according to if they're skewed or have fat tails.
+#' Standardizes all numerical variables according to if they're skewed or have fat tails. If originial scale is given it will revert the given standardization for the data argument.
 #'
 #' @param data a data.frame, can also revert standardization for vectors
 #' @param revertible if true saves mean and standard deviation with variable names

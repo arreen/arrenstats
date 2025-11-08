@@ -5,6 +5,8 @@
 #'
 #' @param data dataframe column or multiple.
 #'
+#' @usage p(iris)
+#'
 #' @returns A plot.
 #' @import ggplot2 dplyr
 #' @export
