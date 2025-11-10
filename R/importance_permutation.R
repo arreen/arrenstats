@@ -112,9 +112,9 @@ importance_permutation <- function(model, train_df, y_name, loss = function(y, y
 
     # Plot heatmap: fill by V, overlay transparency or color by significance
     p <- ggplot(df, aes(x = Var1, y = Var2, fill = V)) +
-      geom_tile(color = "white") +
+      geom_tile(color = "black") +
       scale_fill_gradient2(
-        low = "blue",      # negative values
+        low = "steelblue",      # negative values
         mid = "white",     # zero
         high = "orange",   # positive values
         midpoint = 0,
@@ -125,7 +125,9 @@ importance_permutation <- function(model, train_df, y_name, loss = function(y, y
       labs(title = main) +
       theme(
         axis.title.x = element_blank(),
-        axis.title.y = element_blank()
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(face = "bold"),
+        axis.text.y = element_text(face = "bold")
       )
 
     if (ncol(corr_matrix) > 5) {

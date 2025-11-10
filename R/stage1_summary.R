@@ -26,7 +26,7 @@
 #' stage1_summary(data, decimals = 1, raw_bool = FALSE, location_plots = FALSE, heatmaps = TRUE, surpress_plotting = FALSE, plot_limit = 7, extreme_outliers = FALSE)
 #'
 #' @returns Outlier counts, according to if within 3 IQR of 1st and 3rd quartile. Mean if n>60 otherwise raw count. The heatmap for categorical variables highlights values with low p-values.
-#' @import dplyr ggplot2 reshape2 stringr
+#' @import dplyr ggplot2 reshape2 stringr RColorBrewer
 #' @export
 #'
 #' @examples
@@ -146,33 +146,53 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
         p = p_long$value
       )
 
+      if (all(corr_matrix > 0)) {
+        p <- ggplot(df, aes(x = Var1, y = Var2, fill = V)) +
+          geom_tile(color = "black") +
+          scale_fill_gradient(low = "white", high = "steelblue") +
+          theme_minimal() +
+          scale_y_discrete(limits = rev(levels(df$Var2))) +
+          labs(fill = legend_lab, alpha = "Significant (p<0.05)",
+               title = main) + theme(
+                 axis.title.x = element_blank(),
+                 axis.title.y = element_blank(),
+                 axis.text.x = element_text(face = "bold"),
+                 axis.text.y = element_text(face = "bold")
+               )
+      } else {
+        p <- ggplot(df, aes(x = Var1, y = Var2, fill = V)) +
+          geom_tile(color = "black") +
+          scale_fill_gradient2(
+            high = "steelblue",      # negative values
+            mid = "white",     # zero
+            low = "orange",   # positive values
+            midpoint = 0,
+            na.value = "grey50"
+          )  +
+          theme_minimal() +
+          scale_y_discrete(limits = rev(levels(df$Var2))) +
+          labs(fill = legend_lab, alpha = "Significant (p<0.05)",
+               title = main) + theme(
+                 axis.title.x = element_blank(),
+                 axis.title.y = element_blank(),
+                 axis.text.x = element_text(face = "bold"),
+                 axis.text.y = element_text(face = "bold")
+               )
+      }
 
-      # Plot heatmap: fill by V, overlay transparency or color by significance
-      p <- ggplot(df, aes(x = Var1, y = Var2, fill = V)) +
-        geom_tile(color = "white") +
-        scale_fill_gradient(low = "white", high = "steelblue") +
-        theme_minimal() +
-        scale_y_discrete(limits = rev(levels(df$Var2))) +
-        labs(fill = legend_lab, alpha = "Significant (p<0.05)",
-             title = main) + theme(
-               axis.title.x = element_blank(),
-               axis.title.y = element_blank()
-             )
 
       if (ncol(corr_matrix) > 5) {
         p <- p + theme(axis.text.x = element_text(angle = 45, hjust = 1))
       }
 
       if (all(p_vals < 0.05)) {
-        p + geom_text(aes(label = round(V, 2), alpha = ifelse(p < 0.05, 1, 0.3)),
+        p <- p + geom_text(aes(label = round(V, 2), alpha = ifelse(p < 0.05, 1, 0.3)),
                       show.legend = FALSE)
       } else {
         p <- p + scale_alpha_continuous(breaks = c(0.3, 1), labels = c("0.3", "1.0")) +
           geom_text(aes(label = round(V, 2), alpha = ifelse(p < 0.05, 1, 0.3)))
-        p
       }
-
-
+      return(p)
     }
 
 
@@ -181,10 +201,10 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
       print(plot_heatmatrix(categorical_matrix, p_values_matrix, "Cramer's V", "Categorical"))
     }
 
-    data[, numerical_index]
-    cor_matrix <- cor(data[, numerical_index], method = "spearman")
+
 
     if (length(numerical_index) > 1) {
+      cor_matrix <- cor(data[, numerical_index], method = "spearman")
       print(plot_heatmatrix(cor_matrix, cor_matrix - cor_matrix, expression("Spearman " * rho), "Numerical"))
     }
 
@@ -303,7 +323,13 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 
     # Clean the output maybe!
-    processed <- rbind(raw[1:2, ] %>% round(decimals), raw[3:4, ] %>% round(2), raw[5, ], raw[6, ] %>% round(2))
+    if (length(numerical_index) == 1) {
+      processed <- raw %>% round(2)
+
+    } else {
+      processed <- rbind(raw[1:2, ] %>% round(decimals), raw[3:4, ] %>% round(2), raw[5, ], raw[6, ] %>% round(2))
+    }
+
     rownames(processed) <- rownames(raw)
 
     if (raw_bool) {

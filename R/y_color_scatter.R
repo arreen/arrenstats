@@ -17,6 +17,20 @@ y_color_scatter <- function(x1, x2, y, varnames = c("Var 1", "Var 2", "Y")) {
   stopifnot(length(x1) == length(x2))
   stopifnot(length(x1) == length(y))
 
+
+  if (is.data.frame(x1)) {
+    x1 <- x1[, 1]
+  }
+
+  if (is.data.frame(x2)) {
+    x2 <- x2[, 1]
+  }
+
+
+  if (is.data.frame(y)) {
+    y <- y[, 1]
+  }
+
   if (is.numeric(y)) {
     Q <- quantile(y, c(0.33, 0.66))
 
