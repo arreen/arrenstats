@@ -11,13 +11,15 @@
 #' @param data data which embeddings from embeddings() are available
 #' @param embeddings embeddings object from embeddings()
 #' @param y_name name for the target variable
+#' @param plot plots embeddings
+#' @param y_type target variable type "numeric", "binary", "categorical" #MULTICLASS NOT IMPLEMENTED
 #'
 #' @returns categorical variables embedded
 #' @import reticulate dplyr stringr keras3 tensorflow
 #' @export
 #'
 #' @examples
-#'
+#' #output <- embeddings(train_data, val_data, y_name = "y")
 #'
 #'
 library(reticulate)
@@ -34,23 +36,24 @@ library(keras3)
 library(stringr)
 library(dplyr)
 
-# Only input categorical variables into this
 
-# I want to input the whole training_data, then get output where categories are encoded
-# HANDLE NUMERICAL COLUMNS
-# I want to have the option to plot the encodings colored on category
-# I tested with simulations for 1-10 for d, but
-# Warn if any column names contain "TQZ"
-embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = FALSE) {
+embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = FALSE, y_type = "numeric") {
   stopifnot(all(colnames(train_data) == colnames(val_data) ))
   stopifnot(y_name %in% colnames(train_data))
+  stopifnot(y_type %in% c("numeric", "binary", "categorical"))
 
   # The tag to identify variables that are encoded, so causes issues later if variables contain this
   stopifnot( all(!str_detect(colnames(train_data), "TQZ")) )
 
+  if (y_type == "numeric") {
+    y_train <- train_data[y_name] %>% unlist()
+    y_val <- val_data[y_name] %>% unlist()
+  } else {
+    y_train <- train_data[y_name] %>% unlist() %>% ordinal_encoder()
+    y_val <- val_data[y_name] %>% unlist() %>% ordinal_encoder()
 
-  y_train <- train_data[y_name] %>% unlist()
-  y_val <- val_data[y_name] %>% unlist()
+  }
+
 
   train_data <- numeric_df(train_data, char = TRUE)
   val_data <- numeric_df(val_data, char = TRUE)
@@ -159,18 +162,40 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
     layer_dense(max(p * d, p * 4), activation = "relu")
 
   # Output
-  output <- input %>%
-    layer_dense(1)  # adjust for regression/classification
 
-  # Build model
-  model <- keras_model(inputs = inputs_list, outputs = output)
-  model %>% compile(
-    optimizer = optimizer_adam_w(
-      learning_rate = 0.001,
-      weight_decay = 0.004  # default values
-    ),
-    loss = "mse"  # or "binary_crossentropy" for classification
-  )
+  if (y_type == "numeric") {
+    output <- input %>%
+      layer_dense(1)
+
+    # Build model
+    model <- keras_model(inputs = inputs_list, outputs = output)
+    model %>% compile(
+      optimizer = optimizer_adam_w(
+        learning_rate = 0.001,
+        weight_decay = 0.004  # default values
+      ),
+      loss = "mse"  # or "binary_crossentropy" for classification
+    )
+  }
+
+  if (y_type == "binary") {
+    output <- input %>%
+      layer_dense(1, activation = "sigmoid")
+
+    # Build model
+    model <- keras_model(inputs = inputs_list, outputs = output)
+    model %>% compile(
+      optimizer = optimizer_adam_w(
+        learning_rate = 0.001,
+        weight_decay = 0.004  # default values
+      ),
+      loss = "binary_crossentropy",
+      metrics = "accuracy"
+    )
+
+  }
+
+
 
 
 
@@ -257,8 +282,7 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 }
 
 
-output <- embeddings(cbind(train_data, 0), cbind(val_data, 0), y_name = "y")
 
-p(output)
 
-plot_embedding("C1", output)
+
+

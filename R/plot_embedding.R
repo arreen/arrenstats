@@ -11,7 +11,8 @@
 #' @export
 #'
 #' @examples
-#'
+#' #embeddings <- embeddings(train_data, val_data, y_name = "y")
+#' #plot_embedding("C1", output)
 #'
 plot_embedding <- function(name, embeddings) {
 

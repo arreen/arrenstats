@@ -5,7 +5,7 @@
 #'
 #' Remove features from dominating components if they have too many outliers, skews distance
 #' Remove features you can't change if the goal is to impact Y, ex. height for Y = weight
-#' Remove features that are boring or trivial results if goal is new knowledge,
+#' Remove features that are boring or trivial results if goal is new knowledge
 #'
 #' @param data df, can contain categorical, they will be filtered away
 #' @param y_name name of Y

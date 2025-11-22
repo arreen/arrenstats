@@ -15,6 +15,7 @@
 #' p(iris[, 2])
 #' p(iris[, 1:3])
 #'
+#' #p(embeddings)
 #'
 
 p <- function(data) {
