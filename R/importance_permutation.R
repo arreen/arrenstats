@@ -25,8 +25,6 @@ importance_permutation <- function(model, train_df, y_name, loss = function(y, y
 
 
 
-
-
   if (is.character(loss)) {
     # Preset loss functions
   }

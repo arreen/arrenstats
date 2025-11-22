@@ -18,6 +18,24 @@
 #'
 
 p <- function(data) {
+
+  if (class(data) == "embeddings") {
+
+    my_vars <- data$embeddings_list %>% names()
+
+    for (i in my_vars) {
+      plot_embedding(i, data)
+    }
+
+
+    return(invisible(NULL))
+
+
+
+  }
+
+
+
   if (is.data.frame(data) | is.matrix(data)) {
     types <- sapply(1:ncol(data), function(x) class(data[, x])) %>% unlist()
     numerical_index <- which(types == "numeric" | types == "integer")
