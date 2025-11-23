@@ -12,7 +12,8 @@
 #' @param embeddings embeddings object from embeddings()
 #' @param y_name name for the target variable
 #' @param plot plots embeddings
-#' @param y_type target variable type "numeric", "binary", "categorical" #MULTICLASS NOT IMPLEMENTED
+#' @param y_type target variable type "numeric", "binary", "categorical"
+#' @param epochs max epochs
 #'
 #' @returns categorical variables embedded
 #' @import reticulate dplyr stringr keras3 tensorflow
@@ -22,7 +23,7 @@
 #' #output <- embeddings(train_data, val_data, y_name = "y")
 #'
 #'
-embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = FALSE, y_type = "numeric") {
+embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = FALSE, y_type = "numeric", epochs = 50) {
   stopifnot(all(colnames(train_data) == colnames(val_data) ))
   stopifnot(y_name %in% colnames(train_data))
   stopifnot(y_type %in% c("numeric", "binary", "categorical"))
@@ -308,7 +309,7 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
     mode = "min"                  # We want loss to be minimal (use "max" for accuracy)
   )
 
-  history <- model |> fit(x_lis, y_train, epochs = 50, batch_size = b_s,
+  history <- model |> fit(x_lis, y_train, epochs = epochs, batch_size = b_s,
                           validation_data = list(x_lis_v, y_val), sample_weight = weights,
                           callbacks = list(early_stop))
 

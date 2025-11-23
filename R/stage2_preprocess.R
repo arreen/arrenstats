@@ -8,6 +8,7 @@
 #' @param y_name target variable colname
 #' @param plot if FALSE embedding plots are not produced, I think it is important to not hide the loss function graph
 #' @param y_type type of the target variable, if "none" it is good at detecting binary and numerical, if it is a multiclass variable coded as numbers it will not be automatically detected, you can make it into a character or specify like this: "numeric", "binary", "categorical"
+#' @param epochs max epochs
 #'
 #' @returns processes train and val data. preprocess_new_data contains embeddings and scaling so new_data can be converted to the same structure.
 #' @export
@@ -15,7 +16,7 @@
 #' @examples
 #' # a <- stage2_preprocess(train_data, val_data, y_name = "fruits", y_type = "categorical")
 #'
-stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "none") {
+stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "none", epochs = 50) {
   stopifnot(all(colnames(train_df) %in% colnames(val_df)))
   stopifnot(y_name %in% colnames(train_df))
 
@@ -60,7 +61,7 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
   character_sum <- sum(types[colnames(train_data) != y_name] == "character") + sum(types[colnames(train_data) != y_name] == "factor")
 
   if (character_sum != 0){
-    embeddings <- embeddings(train_df, val_df, y_name, plot = plot, y_type = y_type)
+    embeddings <- embeddings(train_df, val_df, y_name, plot = plot, y_type = y_type, epochs = epochs)
 
     train_df <- encode_my_df(train_df, embeddings, y_name)
     val_df <-   encode_my_df(val_df, embeddings, y_name)

@@ -15,7 +15,7 @@ stage2_preprocess(train_df, val_df, y_name, plot = TRUE, y_type = "none")
 
 \item{plot}{if FALSE embedding plots are not produced, I think it is important to not hide the loss function graph}
 
-\item{y_type}{type of the target variable, if "non" it is good at detecting binary and numerical, if it is a multiclass variable coded as numbers it will not be automatically detected, you can make it into a character or specify like this: "numeric", "binary", "categorical"}
+\item{y_type}{type of the target variable, if "none" it is good at detecting binary and numerical, if it is a multiclass variable coded as numbers it will not be automatically detected, you can make it into a character or specify like this: "numeric", "binary", "categorical"}
 }
 \value{
 processes train and val data. preprocess_new_data contains embeddings and scaling so new_data can be converted to the same structure.

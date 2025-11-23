@@ -9,7 +9,9 @@ stage2_pca_workflow(
   y_name,
   components = 3,
   decimals = 1,
-  pca_loading = -1
+  pca_loading = -1,
+  rows_to_return = 4,
+  y_type = "none"
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ stage2_pca_workflow(
 \item{decimals}{rounding}
 
 \item{pca_loading}{input index of components to analyze more, I recommend 1:n as it is most interesting}
+
+\item{rows_to_return}{amount of rows to return}
+
+\item{y_type}{type of the target variable, if "none" it is good at detecting binary and numerical, if it is a multiclass variable coded as numbers it will not be automatically detected, you can make it into a character or specify like this: "numeric", "binary", "categorical"}
 }
 \value{
 Cummulative variance for the PCA components, summary for the PCA regression, most important components in the PCA regression
