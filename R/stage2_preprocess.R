@@ -51,7 +51,6 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
 
   }
 
-
   embeddings <- embeddings(train_df, val_df, y_name, plot = plot, y_type = y_type)
 
   train_df <- encode_my_df(train_df, embeddings, y_name)
@@ -77,6 +76,10 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
 # BUGGED SOMEHOW Y GETS BINARY1s THING
 a <- stage2_preprocess(train_data, val_data, "binary1")
 
-q <- a$train %>% std_df(original_scale = a$preprocess_new_data$reverse_df)
+
+q <- a$val %>% std_df(original_scale = a$preprocess_new_data$reverse_df)
 q$y[1:5]
 val_data$y[1:5]
+
+q$binary2[1:5]
+val_data$binary2[1:5]

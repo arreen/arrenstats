@@ -33,11 +33,11 @@ encode_my_df <- function(data, embeddings, y_name) {
 
   y <- data[y_name] %>% unlist()
   numeric_data <- numeric_df(data)
-  numeric_data <- numeric_data[colnames(numeric_data) != "y"]
+  numeric_data <- numeric_data[colnames(numeric_data) != y_name]
 
 
   data <- numeric_df(data, char = TRUE)
-  data <- data[colnames(data) != "y"]
+  data <- data[colnames(data) != y_name]
 
   make_zero_embeds_df <- function(df, k = d, tag = "TQZ") {
     out <- as.data.frame(matrix(0, nrow = nrow(df), ncol = 1))
@@ -75,14 +75,15 @@ encode_my_df <- function(data, embeddings, y_name) {
 
 
     col <- as.character(data[, i])
-    col[col %in% extra_lv] <- "OTHER"
+    col[col %in% extra_lv] <- "Unseen category"
 
-    if (sum(col == "OTHER") == 0 ) {
+
+    if (sum(col == "Unseen category") == 0 ) {
       data[, i] <- data[, i] %>% ordinal_encoder() %>% as.integer() + 1
 
     } else {
 
-      new_lv <- c("OTHER", train_lv)
+      new_lv <- c("Unseen category", train_lv)
       data[, i] <- factor(col, levels = new_lv)
 
       data[, i] <- data[, i] %>% ordinal_encoder() %>% as.integer()
@@ -109,10 +110,16 @@ encode_my_df <- function(data, embeddings, y_name) {
     encoded[i, ] <- encoded_values
   }
 
+
   if (length(numeric_data) == 0) {
-    return(cbind(y, encoded))
+    return_df <- cbind(y, encoded)
+    colnames(return_df) <- c(y_name, colnames(encoded))
+
+    return(return_df)
   }
 
-  return(cbind(y, encoded, numeric_data))
+  return_df <- cbind(y, encoded, numeric_data)
+  colnames(return_df) <- c(y_name, colnames(encoded), colnames(numeric_data))
+  return(return_df)
 
 }
