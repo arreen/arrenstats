@@ -46,7 +46,6 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
   categorical_index <- which(str_detect(types, "(factor)|(character)"))
 
 
-
   if (length(numerical_index) + length(categorical_index) < (plot_limit + 1) & !surpress_plotting) {
     #Plot all histograms instead! if k < 8
 

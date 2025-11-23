@@ -18,8 +18,9 @@
 #'
 #' @examples
 #'
-#'
 encode_my_df <- function(data, embeddings, y_name) {
+
+
   stopifnot(class(embeddings) == "embeddings")
 
   category_levels <- embeddings$category_levels

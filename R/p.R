@@ -17,7 +17,6 @@
 #'
 #' #p(embeddings)
 #'
-
 p <- function(data) {
 
   if (class(data) == "embeddings") {

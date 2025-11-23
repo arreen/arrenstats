@@ -74,21 +74,21 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
     # so we handle it by masking
 
     train_lv <- unique(as.character(train_data[, i]))
-    val_lv   <- unique(as.character(data[, i]))
+    val_lv   <- unique(as.character(val_data[, i]))
     extra_lv  <- val_lv[!val_lv %in% train_lv]
 
     # New order: common first, extras last
     new_lv <- c(extra_lv, train_lv)
 
     val_col <- as.character(val_data[, i])
-    val_col[val_col %in% extra_lv] <- "OTHER"
+    val_col[val_col %in% extra_lv] <- "Unseen category"
 
-    if (sum(val_col == "OTHER") == 0 ) {
+    if (sum(val_col == "Unseen category") == 0 ) {
       val_data[, i] <- val_data[, i] %>% ordinal_encoder() %>% as.integer() + 1
 
     } else {
 
-      new_lv <- c("OTHER", train_lv)
+      new_lv <- c("Unseen category", train_lv)
       val_data[, i] <- factor(val_col, levels = new_lv)
 
       val_data[, i] <- val_data[, i] %>% ordinal_encoder() %>% as.integer()

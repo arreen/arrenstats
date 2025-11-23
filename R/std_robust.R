@@ -7,6 +7,7 @@
 #'
 #' @param x numerical vector
 #' @param revertbible If spread and location should be saved
+#' @param binary special standardization for binary variable -mean / MAD*1.48
 #'
 #' @returns Standardized values
 #' @export
@@ -15,7 +16,21 @@
 #' std_robust(rnorm(10, 10, 5))
 #'
 #'
-std_robust <- function(x, revertible = FALSE) {
+std_robust <- function(x, revertible = FALSE, binary = FALSE) {
+
+  if (binary) {
+    mu <- mean(x)
+    spread <- 1.4826 * mean(abs(x - mu))
+    if (revertible) {
+      return(list(x = (x - mu) / spread, mu = mu, spread = spread))
+    } else {
+      return((x - mu) / spread)
+    }
+
+
+
+  }
+
   # x is a vector
   Q <- quantile(x, probs = c(0.25, 0.5, 0.75))
 
