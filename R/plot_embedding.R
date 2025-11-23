@@ -3,7 +3,7 @@
 #' @description
 #' Plots the embeddings for a categorical variable
 #'
-#' @param name name of the variale to plot. can be found via output$embeddings_list %>% names()
+#' @param name name of the variale to plot. can be found via names(output$embeddings_list)
 #' @param embeddings embeddings object from embeddings()
 #'
 #' @returns A plot where clusters of similarity between levels in the category can be visualized

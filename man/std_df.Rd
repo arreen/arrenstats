@@ -4,20 +4,30 @@
 \alias{std_df}
 \title{std_df}
 \usage{
-std_df(data, original_scale = NA, revertible = FALSE)
+std_df(
+  data,
+  original_scale = NA,
+  revertible = FALSE,
+  standardize_new_data_like_train = NA
+)
 }
 \arguments{
 \item{data}{a data.frame, can also revert standardization for vectors}
 
-\item{original_scale}{put the reverse_df you got from revertible = TRUE in here}
+\item{original_scale}{put the reverse_df you got from revertible = TRUE in here to revert standardization}
 
 \item{revertible}{if true saves mean and standard deviation with variable names}
+
+\item{standardize_new_data_like_train}{If you put reverse_df here, it will standardize data using these locations and scales}
 }
 \value{
 Standardized data.frame
 }
 \description{
 Standardizes all numerical variables according to if they're skewed or have fat tails. If originial scale is given it will revert the given standardization for the data argument.
+Special standardization for embeddings (tagged TQZ, be careful of including this in var names).
+They get scaled per category, but centered by level, pointswarm centered at 0, radius scaled down, geometric meaning of embedding is perserved.
+Standardizes binary variables by first mapping them to 0, 1 (the category appearing first in the vector becomes 0) and then applying - mean / MAD*1.4826
 }
 \examples{
 std_df(iris)

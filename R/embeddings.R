@@ -1,11 +1,11 @@
-#' encode_my_df
+#' embeddings
 #'
 #' @description
-#' Takes a data_frame, uses the embeddings from embeddings() in the embeddings object.
 #' Outputs vector representations for each category in the categorical variables (character or factor varaibles).
 #' This is usually 2 columns with coordinates, 0 is for unseen categories.
 #' BE CAREFUL STANDARDIZING THESE CATEGORIES, YOU LOSE GEOMETRICAL MEANING, the tag TQZ in the variable names
 #' is so the function std_df will handle them correctly, local mean per column but global scaling per category.
+#' The neural net weighs the loss function according to rare classes 1/(c1*c2..) but winzorized and standardized.
 #'
 #'
 #' @param data data which embeddings from embeddings() are available
@@ -22,41 +22,64 @@
 #' #output <- embeddings(train_data, val_data, y_name = "y")
 #'
 #'
-library(reticulate)
-#reticulate::install_miniconda(force = TRUE)
-#conda_create("tf-env")
-# RESTART R
-use_condaenv("tf-env", require<- = TRUE)
-# numpy and keras in py-config
-# conda_install("tf-env", "tensorflow", pip = TRUE)
-# restart R
-py_config()
-library(tensorflow)
-library(keras3)
-library(stringr)
-library(dplyr)
-
-
 embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = FALSE, y_type = "numeric") {
   stopifnot(all(colnames(train_data) == colnames(val_data) ))
   stopifnot(y_name %in% colnames(train_data))
   stopifnot(y_type %in% c("numeric", "binary", "categorical"))
 
+  types <- sapply(1:ncol(train_data), function(x) class(train_data[, x]) %>% str_c(collapse = "")) %>% unlist()
+  character_sum <- sum(types[colnames(train_data) != y_name] == "character") + sum(types[colnames(train_data) != y_name] == "factor")
+
+  stopifnot(character_sum != 0)
+
   # The tag to identify variables that are encoded, so causes issues later if variables contain this
   stopifnot( all(!str_detect(colnames(train_data), "TQZ")) )
+
+
+  if (!reticulate::py_available(initialize = FALSE)) {
+    reticulate::use_condaenv("tf-env", require = TRUE)
+  }
+
 
   if (y_type == "numeric") {
     y_train <- train_data[y_name] %>% unlist()
     y_val <- val_data[y_name] %>% unlist()
-  } else {
+  } else if (y_type == "binary") {
     y_train <- train_data[y_name] %>% unlist() %>% ordinal_encoder()
     y_val <- val_data[y_name] %>% unlist() %>% ordinal_encoder()
+  } else {
+    y_train <- train_data[y_name] %>% unlist()
+    y_val <- val_data[y_name] %>% unlist()
+
+    train_classes <- y_train %>% as.character() %>% unique()
+    n_classes_y <- train_classes %>% length()
+    val_classes <- y_val %>% as.character() %>% unique()
+
+    if (!all(val_classes %in% train_classes)) {
+      # we have unseen classes, remove these
+      print("Removing classes in validation that are unseen in training")
+      unseen <- val_classes[!(val_classes %in% train_classes)]
+      row_index_unseen <- which(unlist(val_data[y_name]) %in% unseen)
+      val_data <- val_data[-row_index_unseen, ]
+      y_val <- y_val[-row_index_unseen]
+    }
+
+    # A-E 0-4
+    class2id <- setNames(seq_along(train_classes) - 1L, train_classes)
+
+
+    y_train <- class2id[y_train] %>% unname()
+    y_val <- class2id[y_val]   %>% unname()
+
 
   }
 
 
+
+
   train_data <- numeric_df(train_data, char = TRUE)
   val_data <- numeric_df(val_data, char = TRUE)
+
 
   # have to fix validation categories first, otherwise levels change
   category_levels <- list()
@@ -102,14 +125,14 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 
   for (i in which(colnames(train_data) != y_name)) {
 
+    # +1 cuz pad unseen as 0s
     train_data[, i] <- train_data[, i] %>% ordinal_encoder() %>% as.integer() + 1
 
   }
 
+  x_train <- train_data[, which(colnames(train_data) != y_name), drop = FALSE] %>% as.matrix()
 
-  x_train <- train_data[, which(colnames(train_data) != y_name)] %>% as.matrix()
-
-  x_val <- val_data[, which(colnames(val_data) != y_name)] %>% as.matrix()
+  x_val <- val_data[, which(colnames(val_data) != y_name), drop = FALSE] %>% as.matrix()
 
 
   # vary d for different categories? probably not too much, fix at 2, 3, 4, 5...
@@ -154,10 +177,17 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 
   p <- length(inputs_list)
 
-  # Concatenate embeddings
-  input <- layer_concatenate(embeddings_list) %>%
+
+  if (length(embeddings_list) > 1) {
+    input <- layer_concatenate(embeddings_list)
+  } else {
+    input <- embeddings_list[[1]]
+  }
+
+  input <- input %>%
     layer_dense(max(p * d, 64), activation = "relu") %>%
-    layer_dropout(rate = dropout) %>% layer_dense(max(round(p * d / 2), 64), activation = "relu") %>%
+    layer_dropout(rate = dropout) %>%
+    layer_dense(max(round(p * d / 2), 64), activation = "relu") %>%
     layer_dropout(rate = dropout) %>%
     layer_dense(max(p * d, p * 4), activation = "relu")
 
@@ -195,6 +225,22 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 
   }
 
+  if (y_type == "categorical") {
+    output <- input %>%
+      layer_dense(n_classes_y, activation = "softmax")
+
+    model <- keras_model(inputs = inputs_list, outputs = output)
+
+    model %>% compile(
+      optimizer = optimizer_adam_w(
+        learning_rate = 0.001,
+        weight_decay = 0.004
+      ),
+      loss = "sparse_categorical_crossentropy",
+      metrics = "accuracy"
+    )
+  }
+
 
 
 
@@ -211,6 +257,7 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 
   # Weights 1/(#c1*#c2...)
   # --------------------
+
   n_rows <- nrow(x_train)
   n_cols <- ncol(x_train)
   counts_matrix <- matrix(0, nrow = n_rows, ncol = n_cols)
@@ -231,6 +278,15 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
   }
 
   weights <- exp(final_sums)
+
+
+  if (y_type == "categorical") {
+    y_multiclass_mod <- 1/table(y_train)[as.character(y_train)]
+    weights <- y_multiclass_mod * weights
+  }
+
+
+
 
   # pareto reasoning for 20, could be 0.75 or 0.9 aswell.
   # have to clip weights for gradient explosion

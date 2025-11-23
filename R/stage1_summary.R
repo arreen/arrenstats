@@ -355,7 +355,6 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
 # categorical vs numerical?
 
-# PCA ?
 
 
 

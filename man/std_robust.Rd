@@ -4,10 +4,12 @@
 \alias{std_robust}
 \title{std_robust}
 \usage{
-std_robust(x, revertible = FALSE)
+std_robust(x, revertible = FALSE, binary = FALSE)
 }
 \arguments{
 \item{x}{numerical vector}
+
+\item{binary}{special standardization for binary variable -mean / MAD*1.48}
 
 \item{revertbible}{If spread and location should be saved}
 }
@@ -17,6 +19,7 @@ Standardized values
 \description{
 Robust standardization 1.349 * (x - Q[2]) / (Q[3] - Q[1])
 Comparable to z_score under normality
+If IQR = 0, uses MAD scaled to be comparable to z_score
 }
 \examples{
 std_robust(rnorm(10, 10, 5))

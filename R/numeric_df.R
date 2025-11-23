@@ -24,7 +24,7 @@ numeric_df <- function(df, char = FALSE) {
     index <- str_detect(types, "(integer)|(numeric)")
   }
 
-  return(df[, index])
+  return(df[, index, drop = FALSE])
 
 }
 

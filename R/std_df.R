@@ -183,7 +183,6 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
 
 
 
-
         } else {
           spread <- group_standardized[[group]]
         }
@@ -202,7 +201,7 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
                             ))
         }
 
-      } else {
+         else {
 
 
         if (!group_standardized[[group]]) {
@@ -231,8 +230,9 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
         }
 
 
-      }
+         }
 
+      }
 
     } else {
       # to skewed/kurtose or too many outliers (5%) outside 3 IQR

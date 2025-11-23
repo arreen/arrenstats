@@ -1,11 +1,7 @@
 #' encode_my_df
 #'
 #' @description
-#' Takes a data_frame, uses the embeddings from embeddings() in the embeddings object.
-#' Outputs vector representations for each category in the categorical variables (character or factor varaibles).
-#' This is usually 2 columns with coordinates, 0 is for unseen categories.
-#' BE CAREFUL STANDARDIZING THESE CATEGORIES, YOU LOSE GEOMETRICAL MEANING, the tag TQZ in the variable names
-#' is so the function std_df will handle them correctly, local mean per column but global scaling per category.
+#' Takes a data_frame, uses the embeddings from embeddings() in the embeddings object. BEWARE OF INDEX STORING FOR Y, Y IS MOVED TO THE FIRST COLUMN.
 #'
 #'
 #' @param data data which embeddings from embeddings() are available
@@ -17,9 +13,17 @@
 #' @export
 #'
 #' @examples
+#' # encode_my_df(train_data, embeddings(train_data, val_data, y_name = "y")$embeddings_list, "y")
 #'
 encode_my_df <- function(data, embeddings, y_name) {
 
+
+  if (isTRUE(all.equal(embeddings, list()))) {
+    ind <- c(which(colnames(data) == y_name), which(colnames(data) != y_name))
+    return_df <- data[, ind]
+    return(return_df)
+
+  }
 
   stopifnot(class(embeddings) == "embeddings")
 
