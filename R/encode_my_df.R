@@ -43,12 +43,18 @@ encode_my_df <- function(data, embeddings, y_name) {
   data <- numeric_df(data, char = TRUE)
   data <- data[colnames(data) != y_name]
 
+  binary_index <- sapply(1:ncol(data), function(x) (data[, x] %>% unique() %>% length()) < 3 ) %>% which()
+  numeric_data <- cbind(numeric_data, data[, binary_index, drop = FALSE])
+
+  data <- data[, -binary_index, drop = FALSE]
+
+
   make_zero_embeds_df <- function(df, k = d, tag = "TQZ") {
     out <- as.data.frame(matrix(0, nrow = nrow(df), ncol = 1))
 
     for (i in 1:ncol(df)) {
 
-      x <- df[, i]
+      x <- df[, i, drop = FALSE]
       colname <- colnames(df)[i]
 
       new_names <- paste0(colname, "_", seq(k), "_", tag)

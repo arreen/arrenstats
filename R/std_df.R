@@ -26,7 +26,17 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
 
     scale_these <- which(colnames(data) %in% my_df$var_name)
 
+    binary_var_index <- sapply(1:ncol(data), function(x) data[, x] %>% unique() %>% length())
+    binary_var_index <- which(binary_var_index == 2)
+
+    for (binary in binary_var_index) {
+      data[, binary] <- data[, binary] %>% ordinal_encoder()
+
+    }
+
+
     for (i in scale_these) {
+      print(i)
       var <- colnames(data)[i]
       mu <- my_df[my_df$var_name == var, 2]
       spread <- my_df[my_df$var_name == var, 3]
