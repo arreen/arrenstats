@@ -42,12 +42,15 @@ This package outlines the typical data-to-knowledge pipeline where the process n
 ```{r splitting the data}
 library(arrenstats)
 
-data <- iris
+#data <- iris
+data <- read.csv("Development_R/Housing.csv")
 train_fraction <- 0.65
 val_fraction <- 0.25
 n <- nrow(data)
 
+set.seed(123)
 train_index <- sample(1:n, round(n*train_fraction))
+set.seed(123)
 val_index <- sample((1:n)[-train_index], round(n*val_fraction))
 
 train_data <- data[train_index, ]
@@ -57,8 +60,8 @@ test_data <- data[-c(train_index, val_index), ]
 ```
 
 ```{r initial options}
-y_name <- "Species"
-y_type <- "categorical"
+y_name <- "price"
+y_type <- "numeric"
 
 ```
 
@@ -70,11 +73,10 @@ y_type <- "categorical"
 # stage1_missing_values() NOT IMPLEMENTED, mean/median impute? add noise, spread from data?
 
 # Initial screening
-# stage1_summary(train_data)
+stage1_summary(train_data)
 
 # Variable dependencies
-# stage1_bayesian() BIN numerical values, understand the theories behind bayesian
-
+stage1_variable_connections(train_data, y_name, restart = 100)
 
 
 ```
@@ -84,12 +86,15 @@ y_type <- "categorical"
 
 # Embedds categories, standardizes variables
 # Shows similarity between levels of a categorical variable
-lis <-  stage2_preprocess(train_df = train_data, val_df =  val_data, y_name = y_name, y_type = y_type)
+lis <-  stage2_preprocess(train_df = train_data, val_df =  val_data, y_name = y_name, y_type = y_type, epochs = 100)
+
 
 t_std <- lis$train
 v_std <- lis$val
 
+# THIS BUGS Error in category_levels[[i]] : subscript out of bounds
 test_encoded <- encode_my_df(test_data, embeddings = lis$preprocess_new_data$embeddings, y_name = y_name)
+debug(std_df)
 test_std <- test_encoded %>% std_df(standardize_new_data_like_train = lis$preprocess_new_data$reverse_df)
 
 ```
@@ -110,10 +115,12 @@ Corr_Y, Y_color_scatter, when is this needed???
 # arrenboost
 
 
+# fitted_bn <- bn.fit(res, data = bn_df, method = "mle") + cpquery()
+
 ```
 
 
-# Stage 4 - Model evaluation
+# Stage 4 - Model evaluation 
 ```{r stage4}
 
 # confusion_matrix()
@@ -122,5 +129,7 @@ Corr_Y, Y_color_scatter, when is this needed???
 # importance_permutation()
 
 # SHAP IMPLEMENT SHAP
+
+
 
 ```
