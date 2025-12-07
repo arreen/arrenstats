@@ -4,7 +4,14 @@
 \alias{stage2_preprocess}
 \title{stage2_preprocess}
 \usage{
-stage2_preprocess(train_df, val_df, y_name, plot = TRUE, y_type = "none")
+stage2_preprocess(
+  train_df,
+  val_df,
+  y_name,
+  plot = TRUE,
+  y_type = "none",
+  epochs = 50
+)
 }
 \arguments{
 \item{train_df}{training data, numerical variables should be integer or numeric, categorical should be factor or character.}
@@ -16,6 +23,8 @@ stage2_preprocess(train_df, val_df, y_name, plot = TRUE, y_type = "none")
 \item{plot}{if FALSE embedding plots are not produced, I think it is important to not hide the loss function graph}
 
 \item{y_type}{type of the target variable, if "none" it is good at detecting binary and numerical, if it is a multiclass variable coded as numbers it will not be automatically detected, you can make it into a character or specify like this: "numeric", "binary", "categorical"}
+
+\item{epochs}{max epochs, increase if you dont see convergence}
 }
 \value{
 processes train and val data. preprocess_new_data contains embeddings and scaling so new_data can be converted to the same structure.

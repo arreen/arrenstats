@@ -74,7 +74,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
   }
 
   if (heatmaps) {
-    #browser()
+
     categorical_matrix <- diag(length(categorical_index))
     p_values_matrix <- diag(x = 0, length(categorical_index))
     rownames(categorical_matrix) <- colnames(categorical_matrix) <- colnames(data[, categorical_index])
@@ -230,6 +230,7 @@ stage1_summary <- function(data, decimals = 1, raw_bool = FALSE, location_plots 
 
     outlier_check_percent <- function(x) {
       n <- length(x)
+
       Q <- quantile(x, c(0.25, 0.75))
       IQR <- Q[2] - Q[1]
       # Index vector showing which observations are outside the expected interval

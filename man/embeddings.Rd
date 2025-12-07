@@ -11,15 +11,20 @@ embeddings(
   d = 2,
   dropout = 0,
   plot = FALSE,
-  y_type = "numeric"
+  y_type = "numeric",
+  epochs = 50
 )
 }
 \arguments{
 \item{y_name}{name for the target variable}
 
+\item{d}{dimension for the embedding}
+
 \item{plot}{plots embeddings}
 
-\item{y_type}{target variable type "numeric", "binary", "categorical" #MULTICLASS NOT IMPLEMENTED}
+\item{y_type}{target variable type "numeric", "binary", "categorical"}
+
+\item{epochs}{max epochs}
 
 \item{data}{data which embeddings from embeddings() are available}
 

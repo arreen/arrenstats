@@ -21,13 +21,16 @@
 #'
 std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_new_data_like_train = NA) {
 
+
   if (is.data.frame(standardize_new_data_like_train)) {
     my_df <- standardize_new_data_like_train
 
     scale_these <- which(colnames(data) %in% my_df$var_name)
 
-    binary_var_index <- sapply(1:ncol(data), function(x) data[, x] %>% unique() %>% length())
-    binary_var_index <- which(binary_var_index == 2)
+      binary_var_index <- sapply(1:ncol(data), function(x) data[, x] %>% unique() %>% length())
+      binary_var_index <- which(binary_var_index < 3)
+
+
 
     for (binary in binary_var_index) {
       data[, binary] <- data[, binary] %>% ordinal_encoder()
@@ -36,7 +39,6 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
 
 
     for (i in scale_these) {
-      print(i)
       var <- colnames(data)[i]
       mu <- my_df[my_df$var_name == var, 2]
       spread <- my_df[my_df$var_name == var, 3]
@@ -168,6 +170,7 @@ std_df <- function(data, original_scale = NA, revertible = FALSE, standardize_ne
 
 
             group_df <- data[, str_remove(colnames(data), "_[0-9]+_TQZ$") == group] %>% unlist()
+
             Q <- quantile(group_df, probs = c(0.25, 0.5, 0.75))
 
 

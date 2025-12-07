@@ -20,7 +20,10 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
   stopifnot(all(colnames(train_df) %in% colnames(val_df)))
   stopifnot(y_name %in% colnames(train_df))
 
-  binary_var_index <- sapply(1:ncol(train_df), function(x) train_df[, x] %>% unique() %>% length())
+  non_y_index <- (1:ncol(train_df))[colnames(train_df) != y_name]
+
+  binary_var_index <- sapply(non_y_index, function(x) train_df[, x] %>% unique() %>% length())
+
   if (any(binary_var_index < 2)) {
     return(paste0("check variables", colnames(train_df)[binary_var_index < 2]) %>% print())
   }
@@ -29,16 +32,39 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
 
   binary_df <- data.frame(var_name = character(), mu = numeric(), spread = numeric())
 
+
+  for (i in binary_var_index) {
+
+    # It will cause issues if new categories appear in validation,
+    # so we handle it by masking
+    train_lv <- train_df[, i] %>% unique()
+    lv   <- unique(as.character(val_df[, i]))
+    extra_lv  <- lv[!lv %in% train_lv]
+
+    # New order: common first, extras last
+    new_lv <- c(extra_lv, train_lv)
+
+
+    col <- factor(as.character(val_df[, i]), levels = as.factor(train_df[, i]) %>% levels())
+    col <- col %>% as.factor()
+
+    factor()
+    if ("Unseen category" %in% levels(col)) {
+      col <- relevel(col, ref = "Unseen category")
+    }
+
+    val_df[, i] <- col %>% ordinal_encoder()
+
+  }
+
   for (binary in binary_var_index) {
 
     train_df[, binary] <- train_df[, binary] %>% ordinal_encoder()
 
   }
 
-  for (binary in binary_var_index) {
-    val_df[, binary] <- val_df[, binary] %>% ordinal_encoder()
 
-  }
+
 
   if (y_type == "none") {
     y_class <- train_df[y_name] %>% class()
@@ -60,6 +86,7 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
   types <- sapply(1:ncol(train_data), function(x) class(train_data[, x]) %>% str_c(collapse = "")) %>% unlist()
   character_sum <- sum(types[colnames(train_data) != y_name] == "character") + sum(types[colnames(train_data) != y_name] == "factor")
 
+
   if (character_sum != 0){
     embeddings <- embeddings(train_df, val_df, y_name, plot = plot, y_type = y_type, epochs = epochs)
 
@@ -70,16 +97,17 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
     embeddings <-  list()
   }
 
-
-
+  binary_var_index <- sapply(non_y_index, function(x) train_df[, x] %>% unique() %>% length())
+  binary_var_index <- which(binary_var_index == 2)
 
   std_lis <- std_df(train_df, revertible = TRUE)
 
   train_df <- std_lis$std_df
 
+
   val_df <- std_df(val_df, standardize_new_data_like_train = std_lis$reverse_df)
 
-  rev_df <- rbind(std_lis$reverse_df, binary_df)
+  rev_df <- std_lis$reverse_df
   rownames(rev_df) <- NULL
 
   return(list(train = train_df, val = val_df,
@@ -89,3 +117,6 @@ stage2_preprocess <- function(train_df, val_df, y_name, plot = TRUE, y_type = "n
   )
 }
 
+# train has binary variable,
+# how is this handled in the validation set, do we get one extra? hide it and send it to 0 , the others standardized around 0, check this works out fine
+# special cases

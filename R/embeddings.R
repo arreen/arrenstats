@@ -11,6 +11,7 @@
 #' @param data data which embeddings from embeddings() are available
 #' @param embeddings embeddings object from embeddings()
 #' @param y_name name for the target variable
+#' @param d dimension for the embedding
 #' @param plot plots embeddings
 #' @param y_type target variable type "numeric", "binary", "categorical"
 #' @param epochs max epochs
@@ -123,6 +124,7 @@ embeddings <- function(train_data, val_data, y_name, d = 2, dropout = 0, plot = 
 
 
   }
+
 
   for (i in which(colnames(train_data) != y_name)) {
 

@@ -4,12 +4,21 @@
 \alias{stage1_variable_connections}
 \title{stage1_variable_connections}
 \usage{
-stage1_variable_connections(train_data, y_name)
+stage1_variable_connections(
+  train_data,
+  y_name,
+  restart = 20,
+  feature_cap = 100
+)
 }
 \arguments{
 \item{train_data}{your training data}
 
 \item{y_name}{returns the markov blanket for this variable}
+
+\item{restart}{number of initializations for the hill climber optimization}
+
+\item{feature_cap}{stops the function if you exceed this many features}
 }
 \value{
 returns markov blanket, which features impact y, other features impact

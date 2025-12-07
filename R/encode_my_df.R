@@ -35,6 +35,9 @@ encode_my_df <- function(data, embeddings, y_name) {
   stopifnot(y_name %in% colnames(data))
 
 
+
+
+
   y <- data[y_name] %>% unlist()
   numeric_data <- numeric_df(data)
   numeric_data <- numeric_data[colnames(numeric_data) != y_name]
@@ -43,10 +46,12 @@ encode_my_df <- function(data, embeddings, y_name) {
   data <- numeric_df(data, char = TRUE)
   data <- data[colnames(data) != y_name]
 
-  binary_index <- sapply(1:ncol(data), function(x) (data[, x] %>% unique() %>% length()) < 3 ) %>% which()
+  binary_index <- sapply(1:ncol(data), function(x) (data[, x] %>% unique() %>% length() < 3) ) %>% which()
   numeric_data <- cbind(numeric_data, data[, binary_index, drop = FALSE])
 
-  data <- data[, -binary_index, drop = FALSE]
+  if (length(binary_index) > 0) {
+    data <- data[, -binary_index, drop = FALSE]
+  }
 
 
   make_zero_embeds_df <- function(df, k = d, tag = "TQZ") {
@@ -88,6 +93,8 @@ encode_my_df <- function(data, embeddings, y_name) {
     col[col %in% extra_lv] <- "Unseen category"
 
 
+
+
     if (sum(col == "Unseen category") == 0 ) {
       data[, i] <- data[, i] %>% ordinal_encoder() %>% as.integer() + 1
 
@@ -105,20 +112,33 @@ encode_my_df <- function(data, embeddings, y_name) {
 
   }
 
-  emb_len <- length(embeddings_list)
-  for (i in 1:nrow(data)) {
-    encoded_values <- numeric(emb_len * d)
-    pos <- 1
 
-    # now it is python indexing, so do +1
-    for (j in 1:emb_len) {
-      encoded_values[pos:(pos + d - 1)] <- embeddings_list[[j]][(data[i, j] + 1), ]
-      pos <- pos + d
 
+
+
+
+
+
+    emb_len <- length(embeddings_list)
+
+
+
+    for (row in 1:nrow(data)) {
+
+      encoded_values <- numeric(emb_len * d)
+      pos <- 1
+
+
+      # now it is python indexing, so do +1
+      for (j in 1:emb_len) {
+
+        encoded_values[pos:(pos + d - 1)] <- embeddings_list[[j]][(data[row, j] + 1), ]
+        pos <- pos + d
+
+      }
+
+      encoded[row, ] <- encoded_values
     }
-
-    encoded[i, ] <- encoded_values
-  }
 
 
   if (length(numeric_data) == 0) {
